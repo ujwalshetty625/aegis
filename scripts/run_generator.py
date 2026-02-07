@@ -9,7 +9,8 @@ from app.data.database import init_db, reset_tables
 from app.data.seed import seed_users_and_accounts
 from app.ingestion.generator import generate_transaction, insert_transaction
 from app.signals.engine import generate_spend_signals,generate_velocity_signals,generate_new_device_signals
-from app.risk.engine import store_risk_decisions
+from app.risk.engine import store_account_risk_decisions
+
 
 
 if __name__ == "__main__":
@@ -30,6 +31,7 @@ if __name__ == "__main__":
     generate_velocity_signals()
     generate_new_device_signals()
 
-    print("Computing risk decisions...")
-    store_risk_decisions()
+    print("Computing account-level risk decisions...")
+    store_account_risk_decisions()
+
 

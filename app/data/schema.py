@@ -62,3 +62,12 @@ CREATE TABLE IF NOT EXISTS risk_decisions (
     FOREIGN KEY(account_id) REFERENCES accounts(account_id)
 );
 """
+AUDIT_LOG_TABLE = """
+CREATE TABLE IF NOT EXISTS audit_logs (
+    audit_id TEXT PRIMARY KEY,
+    event_type TEXT,
+    entity_id TEXT,
+    metadata TEXT,
+    created_at TIMESTAMP
+);
+"""

@@ -1,5 +1,5 @@
 import sqlite3
-from app.data.schema import RISK_DECISIONS_TABLE, USER_TABLE, ACCOUNT_TABLE, TRANSACTION_TABLE, SIGNALS_TABLE
+from app.data.schema import RISK_DECISIONS_TABLE, USER_TABLE, ACCOUNT_TABLE, TRANSACTION_TABLE, SIGNALS_TABLE,AUDIT_LOG_TABLE
 
 DB_PATH = "data/aegis.db"
 
@@ -15,6 +15,7 @@ def init_db():
     cursor.execute(TRANSACTION_TABLE)
     cursor.execute(SIGNALS_TABLE)
     cursor.execute(RISK_DECISIONS_TABLE)
+    cursor.execute(AUDIT_LOG_TABLE)
     
 
     conn.commit()

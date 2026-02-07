@@ -1,6 +1,8 @@
 import uuid
 import datetime
 from app.data.database import get_connection
+from app.audit.logger import log_event
+
 
 # -------- Signal 1: Total spend in last 24 hours --------
 
@@ -25,10 +27,12 @@ def store_signal(user_id, signal_type, value, description):
     conn = get_connection()
     cursor = conn.cursor()
 
+    signal_id = str(uuid.uuid4())
+
     cursor.execute("""
         INSERT INTO signals VALUES (?, ?, ?, ?, ?, ?)
     """, (
-        str(uuid.uuid4()),
+        signal_id,
         user_id,
         signal_type,
         value,
@@ -38,6 +42,18 @@ def store_signal(user_id, signal_type, value, description):
 
     conn.commit()
     conn.close()
+
+    # AUDIT LOG
+    log_event(
+        event_type="SIGNAL_GENERATED",
+        entity_id=user_id,
+        metadata={
+            "signal_id": signal_id,
+            "signal_type": signal_type,
+            "value": value,
+            "description": description
+        }
+    )
 
 
 def generate_spend_signals():

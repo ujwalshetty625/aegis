@@ -1,6 +1,8 @@
 import uuid
 import datetime
 from app.data.database import get_connection
+from app.audit.logger import log_event
+
 
 # -----------------------------
 # Signal weights (deterministic)
@@ -84,6 +86,9 @@ def store_risk_decisions():
 
     conn.commit()
     conn.close()
+
+
+
 
 # =========================================================
 # DAY 6 — ACCOUNT-LEVEL RISK ENGINE + DEDUPLICATION
@@ -207,3 +212,15 @@ def store_account_risk_decisions():
 
     conn.commit()
     conn.close()
+    log_event(
+            event_type="DECISION_MADE",
+            entity_id=account_id,
+            metadata={
+                "user_id": user_id,
+                "account_id": account_id,
+                "risk_score": score,
+                "decision": decision,
+                "reasons": data["reasons"]
+            }
+        )
+
