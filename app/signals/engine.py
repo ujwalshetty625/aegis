@@ -29,6 +29,7 @@ def store_signal(user_id, signal_type, value, description):
 
     signal_id = str(uuid.uuid4())
 
+    # Insert signal
     cursor.execute("""
         INSERT INTO signals VALUES (?, ?, ?, ?, ?, ?)
     """, (
@@ -40,11 +41,9 @@ def store_signal(user_id, signal_type, value, description):
         datetime.datetime.utcnow()
     ))
 
-    conn.commit()
-    conn.close()
-
-    # AUDIT LOG
+    # Audit log (same transaction)
     log_event(
+        cursor,
         event_type="SIGNAL_GENERATED",
         entity_id=user_id,
         metadata={
@@ -55,6 +54,8 @@ def store_signal(user_id, signal_type, value, description):
         }
     )
 
+    conn.commit()
+    conn.close()
 
 def generate_spend_signals():
     spend_data = compute_total_spend_last_24h()

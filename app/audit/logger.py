@@ -1,16 +1,13 @@
 import uuid
 import datetime
 import json
-from app.data.database import get_connection
 
 
-def log_event(event_type, entity_id, metadata: dict):
+def log_event(cursor, event_type, entity_id, metadata: dict):
     """
-    Immutable audit log entry.
-    Stores structured metadata for traceability.
+    Audit logger using existing DB cursor.
+    Prevents SQLite locking issues.
     """
-    conn = get_connection()
-    cursor = conn.cursor()
 
     cursor.execute("""
         INSERT INTO audit_logs
@@ -22,6 +19,3 @@ def log_event(event_type, entity_id, metadata: dict):
         json.dumps(metadata),
         datetime.datetime.utcnow()
     ))
-
-    conn.commit()
-    conn.close()
