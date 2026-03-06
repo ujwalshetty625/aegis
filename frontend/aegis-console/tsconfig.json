@@ -6,9 +6,9 @@
       "dom.iterable",
       "esnext"
     ],
-        "baseUrl": ".",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./frontend/aegis-console/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
