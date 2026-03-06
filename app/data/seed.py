@@ -11,7 +11,7 @@ def seed_users_and_accounts(n_users=10):
         account_id = str(uuid.uuid4())
 
         cursor.execute(
-            "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s)",
             (
                 user_id,
                 f"User_{i}",
@@ -23,7 +23,7 @@ def seed_users_and_accounts(n_users=10):
         )
 
         cursor.execute(
-            "INSERT INTO accounts VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO accounts VALUES (%s, %s, %s, %s, %s, %s)",
             (
                 account_id,
                 user_id,

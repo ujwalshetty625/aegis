@@ -30,7 +30,9 @@ def fetch_users_and_accounts():
 
 def generate_transaction():
     users = fetch_users_and_accounts()
-    user_id, account_id = random.choice(users)
+    choice = random.choice(users)
+    user_id = choice["user_id"]
+    account_id = choice["account_id"]
 
     txn = {
         "txn_id": str(uuid.uuid4()),
@@ -57,7 +59,7 @@ def insert_transaction(txn):
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO transactions VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         txn["txn_id"],
         txn["user_id"],
@@ -68,7 +70,7 @@ def insert_transaction(txn):
         txn["merchant_category"],
         txn["location"],
         txn["device_id"],
-        txn["txn_timestamp"], 
+        txn["txn_timestamp"],
         txn["status"]
     ))
 

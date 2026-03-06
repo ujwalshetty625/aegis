@@ -3,26 +3,24 @@ import datetime
 import json
 
 from app.data.database import get_connection
-from app.audit.logger import log_event
+from app.risk.cases import create_review_case
+from app.repositories.decision_repo import fetch_latest_decision as repo_fetch_latest_decision
+from app.repositories.decision_repo import insert_decision as repo_insert_decision
+from app.repositories.audit_repo import log_decision_made
 
 
-# =========================================================
-# SIGNAL WEIGHTS (Deterministic Risk Contributions)
-# =========================================================
 
 SIGNAL_WEIGHTS = {
     "TOTAL_SPEND_24H": 0.002,
     "TXN_VELOCITY_1H": 8.0,
-    "NEW_DEVICE_USED": 15.0
+    "NEW_DEVICE_USED": 15.0,
+    "HIGH_AMOUNT": 0.01,
+    "RAPID_TRANSACTIONS": 12.0,
+    "FREQUENCY_SPIKE": 5.0,
 }
 
 REVIEW_THRESHOLD = 40
 BLOCK_THRESHOLD = 70
-
-
-# =========================================================
-# DAY 5 (Legacy) — USER LEVEL SCORING (Not Used Now)
-# =========================================================
 
 def fetch_signals():
     conn = get_connection()
@@ -81,7 +79,7 @@ def store_risk_decisions():
 
         cursor.execute("""
             INSERT INTO risk_decisions
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             str(uuid.uuid4()),
             user_id,
@@ -155,22 +153,16 @@ def compute_account_risk_scores():
 
 def fetch_latest_decision(user_id, account_id):
     """
-    Fetch latest decision for deduplication.
+    Backwards-compatible wrapper that delegates to the repository.
     """
     conn = get_connection()
     cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT risk_score, decision
-        FROM risk_decisions
-        WHERE user_id = ? AND account_id = ?
-        ORDER BY created_at DESC
-        LIMIT 1
-    """, (user_id, account_id))
-
-    row = cursor.fetchone()
+    latest = repo_fetch_latest_decision(cursor, account_id=account_id)
     conn.close()
-    return row
+    if not latest:
+        return None
+    score, decision = latest
+    return score, decision
 
 
 def summarize_reasons(reasons: list):
@@ -213,7 +205,7 @@ def store_account_risk_decisions():
             decision = "ALLOW"
 
         # Deduplication check
-        latest = fetch_latest_decision(user_id, account_id)
+        latest = repo_fetch_latest_decision(cursor, account_id=account_id)
 
         if latest:
             prev_score, prev_decision = latest
@@ -223,33 +215,38 @@ def store_account_risk_decisions():
         # Summarized reasons for DB readability
         reasons_text = summarize_reasons(data["reasons"])
 
-        # Insert decision
-        cursor.execute("""
-            INSERT INTO risk_decisions
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            str(uuid.uuid4()),
-            user_id,
-            account_id,
-            score,
-            decision,
-            reasons_text,
-            datetime.datetime.utcnow()
-        ))
+        # Insert decision via repository
+        decision_row = repo_insert_decision(
+            cursor,
+            user_id=user_id,
+            account_id=account_id,
+            risk_score=score,
+            decision=decision,
+            reasons=reasons_text,
+        )
 
-        # AUDIT LOG (inside loop, correct placement)
-        log_event(
-    cursor,
-    event_type="DECISION_MADE",
-    entity_id=account_id,
-    metadata={
-        "user_id": user_id,
-        "account_id": account_id,
-        "risk_score": score,
-        "decision": decision,
-        "reasons": data["reasons"]
-    }
-)
+        # DAY 12: Create review case automatically
+        if decision in ("REVIEW", "BLOCK"):
+            create_review_case(
+                cursor,
+                user_id=user_id,
+                account_id=account_id,
+                decision=decision,
+                risk_score=score,
+            )
+
+        # AUDIT LOG through repository
+        log_decision_made(
+            cursor,
+            account_id=account_id,
+            metadata={
+                "user_id": user_id,
+                "account_id": account_id,
+                "risk_score": score,
+                "decision": decision,
+                "reasons": data["reasons"],
+            },
+        )
 
     conn.commit()
     conn.close()

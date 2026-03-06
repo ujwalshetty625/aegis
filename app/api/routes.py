@@ -24,7 +24,7 @@ def recent_signals(limit: int = 20):
         SELECT signal_id, user_id, signal_type, signal_value, description, created_at
         FROM signals
         ORDER BY created_at DESC
-        LIMIT ?
+        LIMIT %s
     """, (limit,))
 
     rows = cursor.fetchall()
@@ -34,12 +34,12 @@ def recent_signals(limit: int = 20):
         "count": len(rows),
         "signals": [
             {
-                "signal_id": r[0],
-                "user_id": r[1],
-                "type": r[2],
-                "value": r[3],
-                "description": r[4],
-                "created_at": r[5],
+                "signal_id": r["signal_id"],
+                "user_id": r["user_id"],
+                "type": r["signal_type"],
+                "value": r["signal_value"],
+                "description": r["description"],
+                "created_at": r["created_at"],
             }
             for r in rows
         ]
@@ -58,7 +58,7 @@ def latest_decisions(limit: int = 10):
         SELECT decision_id, user_id, account_id, risk_score, decision, reasons, created_at
         FROM risk_decisions
         ORDER BY created_at DESC
-        LIMIT ?
+        LIMIT %s
     """, (limit,))
 
     rows = cursor.fetchall()
@@ -68,13 +68,13 @@ def latest_decisions(limit: int = 10):
         "count": len(rows),
         "decisions": [
             {
-                "decision_id": r[0],
-                "user_id": r[1],
-                "account_id": r[2],
-                "risk_score": r[3],
-                "decision": r[4],
-                "reasons": r[5],
-                "created_at": r[6],
+                "decision_id": r["decision_id"],
+                "user_id": r["user_id"],
+                "account_id": r["account_id"],
+                "risk_score": r["risk_score"],
+                "decision": r["decision"],
+                "reasons": r["reasons"],
+                "created_at": r["created_at"],
             }
             for r in rows
         ]
@@ -92,7 +92,7 @@ def account_decision(account_id: str):
     cursor.execute("""
         SELECT decision_id, user_id, account_id, risk_score, decision, reasons, created_at
         FROM risk_decisions
-        WHERE account_id = ?
+        WHERE account_id = %s
         ORDER BY created_at DESC
         LIMIT 1
     """, (account_id,))
@@ -104,11 +104,11 @@ def account_decision(account_id: str):
         return {"error": "No decision found for this account"}
 
     return {
-        "decision_id": row[0],
-        "user_id": row[1],
-        "account_id": row[2],
-        "risk_score": row[3],
-        "decision": row[4],
-        "reasons": row[5],
-        "created_at": row[6],
+        "decision_id": row["decision_id"],
+        "user_id": row["user_id"],
+        "account_id": row["account_id"],
+        "risk_score": row["risk_score"],
+        "decision": row["decision"],
+        "reasons": row["reasons"],
+        "created_at": row["created_at"],
     }

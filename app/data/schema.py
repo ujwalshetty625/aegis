@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS signals (
     user_id TEXT,
     signal_type TEXT,
     signal_value REAL,
+    signal_weight REAL,
+    signal_contribution REAL,
     description TEXT,
     created_at TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(user_id)
@@ -66,8 +68,32 @@ AUDIT_LOG_TABLE = """
 CREATE TABLE IF NOT EXISTS audit_logs (
     audit_id TEXT PRIMARY KEY,
     event_type TEXT,
+    entity_type TEXT,
     entity_id TEXT,
     metadata TEXT,
+    prev_hash TEXT,
+    event_hash TEXT,
     created_at TIMESTAMP
+);
+"""
+
+REVIEW_CASES_TABLE = """
+CREATE TABLE IF NOT EXISTS review_cases (
+    case_id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+
+    decision TEXT NOT NULL,
+    risk_score REAL NOT NULL,
+
+    status TEXT DEFAULT 'OPEN',
+    resolution_type TEXT,
+    analyst_note TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP,
+
+    FOREIGN KEY(user_id) REFERENCES users(user_id),
+    FOREIGN KEY(account_id) REFERENCES accounts(account_id)
 );
 """

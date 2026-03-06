@@ -31,7 +31,7 @@ def store_signal(user_id, signal_type, value, description):
 
     # Insert signal
     cursor.execute("""
-        INSERT INTO signals VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO signals VALUES (%s, %s, %s, %s, %s, %s)
     """, (
         signal_id,
         user_id,
@@ -45,13 +45,14 @@ def store_signal(user_id, signal_type, value, description):
     log_event(
         cursor,
         event_type="SIGNAL_GENERATED",
+        entity_type="ACCOUNT",
         entity_id=user_id,
         metadata={
             "signal_id": signal_id,
             "signal_type": signal_type,
             "value": value,
-            "description": description
-        }
+            "description": description,
+        },
     )
 
     conn.commit()

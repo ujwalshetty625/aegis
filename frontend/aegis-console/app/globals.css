@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+
+:root {
+  --bg: #080C0F;
+  --surface: #0D1117;
+  --surface-elevated: #111820;
+
+  --border: #1C2630;
+  --border-strong: #243040;
+
+  --text: #E2E8F0;
+  --text-muted: #64748B;
+  --text-dim: #334155;
+
+  --accent: #0EA5E9;
+  --red: #EF4444;
+  --amber: #F59E0B;
+  --green: #10B981;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans);
+}
+
+/* Card System */
+.aegis-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aegis-card:hover {
+  border-color: var(--border-strong);
+}
+
+/* Elevated Surface */
+.aegis-elevated {
+  background: var(--surface-elevated);
+}
+
+/* Risk Utilities */
+.risk-high { color: var(--red); }
+.risk-medium { color: var(--amber); }
+.risk-low { color: var(--green); }
+
+/* Glow Utilities */
+.glow-red {
+  box-shadow: 0 0 8px rgba(239,68,68,0.35);
+}
+
+.glow-amber {
+  box-shadow: 0 0 8px rgba(245,158,11,0.35);
+}
+
+.glow-green {
+  box-shadow: 0 0 8px rgba(16,185,129,0.35);
+}
+
+/* Table Styling */
+.aegis-table th {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.aegis-table tr {
+  transition: background 0.15s ease;
+}
+
+.aegis-table tr:hover {
+  background: var(--surface-elevated);
+}
