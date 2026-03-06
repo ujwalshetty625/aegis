@@ -18,11 +18,19 @@ type Metrics = {
   total_transactions: number;
   total_accounts?: number;
   open_cases: number;
+
   decision_distribution?: {
     ALLOW?: number;
     REVIEW?: number;
     BLOCK?: number;
   };
+
+  decisions?: {
+    ALLOW?: number;
+    REVIEW?: number;
+    BLOCK?: number;
+  };
+
   avg_risk_score?: number;
 };
 
@@ -58,12 +66,14 @@ export default function DashboardPage() {
   const avgRisk = metrics?.avg_risk_score ?? 0;
 
   const decisions =
-    metrics?.decision_distribution ?? metrics?.decisions ?? { ALLOW: 0, REVIEW: 0, BLOCK: 0 };
+    metrics?.decision_distribution ??
+    metrics?.decisions ??
+    { ALLOW: 0, REVIEW: 0, BLOCK: 0 };
+
   const allow = decisions.ALLOW ?? 0;
   const review = decisions.REVIEW ?? 0;
   const block = decisions.BLOCK ?? 0;
 
-  const totalDecisions = allow + review + block || 1;
   const distributionData = [
     { name: "ALLOW", count: allow },
     { name: "REVIEW", count: review },
@@ -79,13 +89,12 @@ export default function DashboardPage() {
     <main className="space-y-8">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">
-            Risk Command Center
-          </h1>
+          <h1 className="text-2xl font-bold">Risk Command Center</h1>
           <p className="text-xs text-gray-400 font-mono">
             Live view of Aegis risk engine operations
           </p>
         </div>
+
         {error && (
           <div className="px-3 py-2 rounded-md bg-red-900/40 border border-red-700 text-xs text-red-200 font-mono">
             {error}
@@ -138,17 +147,22 @@ export default function DashboardPage() {
           <h2 className="text-sm font-mono text-gray-400 uppercase">
             Decision Distribution
           </h2>
+
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={distributionData}>
                 <CartesianGrid stroke="#1C2630" vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 11 }} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "#9CA3AF", fontSize: 11 }}
+                />
                 <YAxis tick={{ fill: "#9CA3AF", fontSize: 11 }} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#0EA5E9" />
               </BarChart>
             </ResponsiveContainer>
           </div>
+
           <div className="flex justify-between text-xs font-mono text-gray-400">
             <span>ALLOW: {allow}</span>
             <span>REVIEW: {review}</span>
@@ -161,7 +175,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Live activity full width */}
+      {/* Live Activity */}
       <LiveActivity refreshKey={refreshKey} />
     </main>
   );
