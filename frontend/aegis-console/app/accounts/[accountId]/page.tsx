@@ -22,7 +22,7 @@ export default function AccountInvestigationPage() {
       setData(res);
     } catch (err: any) {
       console.error(err);
-      setError(err?.message || "Failed to load account profile");
+      setError(err?.message || "Failed to load account investigation");
     } finally {
       setLoading(false);
     }
@@ -33,11 +33,19 @@ export default function AccountInvestigationPage() {
   }, [accountId]);
 
   if (loading) {
-    return <div className="p-10 text-gray-400 font-mono">Loading...</div>;
+    return (
+      <div className="p-10 text-gray-400 font-mono">
+        Loading investigation data...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-10 text-red-400 font-mono">Error: {error}</div>;
+    return (
+      <div className="p-10 text-red-400 font-mono">
+        Error: {error}
+      </div>
+    );
   }
 
   const account = data?.account;
@@ -52,21 +60,21 @@ export default function AccountInvestigationPage() {
       <h1 className="text-2xl font-bold">Account Investigation</h1>
 
       {/* Account Summary */}
-      <div className="bg-[#0D1117] border border-[#1C2630] rounded-xl p-6 space-y-2">
-        <p className="font-mono text-xs text-gray-400">Account ID</p>
-        <p className="font-mono text-sky-400">{account?.account_id}</p>
+      <div className="aegis-card p-6 space-y-2">
+        <p className="text-xs text-gray-400 font-mono">Account ID</p>
+        <p className="text-sky-400 font-mono">{account?.account_id}</p>
 
-        <p className="font-mono text-xs text-gray-400">Balance</p>
+        <p className="text-xs text-gray-400 font-mono">Balance</p>
         <p className="font-mono">₹{account?.balance}</p>
 
-        <p className="font-mono text-xs text-gray-400">Status</p>
+        <p className="text-xs text-gray-400 font-mono">Status</p>
         <p className="font-mono">{account?.status}</p>
       </div>
 
       {/* Latest Decision */}
       {decision && (
-        <div className="bg-[#0D1117] border border-[#1C2630] rounded-xl p-6">
-          <h2 className="text-sm font-mono text-gray-400 mb-3">
+        <div className="aegis-card p-6">
+          <h2 className="text-sm text-gray-400 font-mono mb-3">
             Latest Risk Decision
           </h2>
 
@@ -90,13 +98,15 @@ export default function AccountInvestigationPage() {
             <span>{decision.risk_score}</span>
           </div>
 
-          <p className="text-xs text-gray-400 mt-3">{decision.reasons}</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {decision.reasons}
+          </p>
         </div>
       )}
 
       {/* Transactions */}
-      <div className="bg-[#0D1117] border border-[#1C2630] rounded-xl p-6">
-        <h2 className="text-sm font-mono text-gray-400 mb-4">
+      <div className="aegis-card p-6">
+        <h2 className="text-sm text-gray-400 font-mono mb-4">
           Recent Transactions
         </h2>
 
@@ -104,7 +114,7 @@ export default function AccountInvestigationPage() {
           transactions.map((t: any) => (
             <div
               key={t.txn_id}
-              className="flex justify-between font-mono text-xs border-b border-[#1C2630] py-2"
+              className="flex justify-between border-b border-[#1C2630] py-2 text-xs font-mono"
             >
               <span>{t.txn_id}</span>
               <span>₹{t.amount}</span>
@@ -119,8 +129,8 @@ export default function AccountInvestigationPage() {
       </div>
 
       {/* Signals */}
-      <div className="bg-[#0D1117] border border-[#1C2630] rounded-xl p-6">
-        <h2 className="text-sm font-mono text-gray-400 mb-4">
+      <div className="aegis-card p-6">
+        <h2 className="text-sm text-gray-400 font-mono mb-4">
           Recent Risk Signals
         </h2>
 
@@ -141,22 +151,17 @@ export default function AccountInvestigationPage() {
         )}
       </div>
 
-      {/* Case */}
+      {/* Open Case */}
       {openCase && (
-        <div className="bg-[#0D1117] border border-[#1C2630] rounded-xl p-6">
-          <h2 className="text-sm font-mono text-gray-400 mb-4">
-            Open Case
+        <div className="aegis-card p-6">
+          <h2 className="text-sm text-gray-400 font-mono mb-4">
+            Open Review Case
           </h2>
 
-          <p className="font-mono text-xs">
-            Case ID: {openCase.case_id}
-          </p>
-          <p className="font-mono text-xs">
-            Decision: {openCase.decision}
-          </p>
-          <p className="font-mono text-xs">
-            Risk Score: {openCase.risk_score}
-          </p>
+          <p className="font-mono text-xs">Case ID: {openCase.case_id}</p>
+          <p className="font-mono text-xs">Decision: {openCase.decision}</p>
+          <p className="font-mono text-xs">Risk Score: {openCase.risk_score}</p>
+          <p className="font-mono text-xs">Status: {openCase.status}</p>
         </div>
       )}
 
