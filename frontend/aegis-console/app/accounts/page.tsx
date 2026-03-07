@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createAccount, fetchAccounts } from "@/lib/api";
 
 export default function AccountsPage() {
+  const router = useRouter();
+
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -37,14 +40,18 @@ export default function AccountsPage() {
     setError(null);
     setSuccess(null);
     setCreatedAccountId(null);
+
     try {
       setCreating(true);
       const res = await createAccount({ name, email, phone });
+
       setSuccess("Account created successfully.");
       setCreatedAccountId(res.account_id || null);
+
       setName("");
       setEmail("");
       setPhone("");
+
       await load();
     } catch (err: any) {
       setError(err.message || "Create account failed");
@@ -58,7 +65,7 @@ export default function AccountsPage() {
     try {
       await navigator.clipboard.writeText(createdAccountId);
     } catch {
-      /* fallback: ignore */
+      /* ignore */
     }
   }
 
@@ -71,11 +78,13 @@ export default function AccountsPage() {
             Create and monitor customer accounts
           </p>
         </div>
+
         {error && (
           <div className="px-3 py-2 rounded-md bg-red-900/40 border border-red-700 text-xs text-red-200 font-mono">
             {error}
           </div>
         )}
+
         {success && (
           <div className="px-3 py-2 rounded-md bg-green-900/40 border border-green-700 text-xs text-green-200 font-mono space-y-2">
             <p>{success}</p>
@@ -95,11 +104,12 @@ export default function AccountsPage() {
         )}
       </header>
 
-      {/* Create form */}
+      {/* Create Account */}
       <div className="aegis-card p-6">
         <h2 className="text-sm font-mono text-gray-400 uppercase mb-4">
           Create Account
         </h2>
+
         <form
           onSubmit={onCreate}
           className="grid grid-cols-4 gap-4 items-end"
@@ -115,6 +125,7 @@ export default function AccountsPage() {
               required
             />
           </div>
+
           <div>
             <label className="text-xs text-gray-400 font-mono mb-1 block">
               Email
@@ -127,6 +138,7 @@ export default function AccountsPage() {
               required
             />
           </div>
+
           <div>
             <label className="text-xs text-gray-400 font-mono mb-1 block">
               Phone
@@ -138,6 +150,7 @@ export default function AccountsPage() {
               required
             />
           </div>
+
           <button
             type="submit"
             disabled={creating}
@@ -148,7 +161,7 @@ export default function AccountsPage() {
         </form>
       </div>
 
-      {/* Accounts table */}
+      {/* Accounts Table */}
       <div className="aegis-card p-6">
         <h2 className="text-sm font-mono text-gray-400 uppercase mb-4">
           Accounts
@@ -165,38 +178,42 @@ export default function AccountsPage() {
                 <th className="text-left py-2 px-2">Created</th>
               </tr>
             </thead>
+
             <tbody>
               {accounts.map((a) => (
                 <tr
                   key={a.account_id}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    (window.location.href = `/accounts/${a.account_id}`)
-                  }
+                  className="cursor-pointer hover:bg-[#0f141a]"
+                  onClick={() => router.push(`/accounts/${a.account_id}`)}
                 >
                   <td className="py-2 px-2 font-mono text-xs text-sky-400">
                     {a.account_id}
                   </td>
+
                   <td className="py-2 px-2 font-mono text-xs">
                     {a.user_id}
                   </td>
+
                   <td className="py-2 px-2 font-mono text-xs">
                     {a.status}
                   </td>
+
                   <td className="py-2 px-2 font-mono text-xs text-right">
                     ₹{Number(a.balance || 0).toFixed(2)}
                   </td>
+
                   <td className="py-2 px-2 font-mono text-xs text-gray-400">
                     {a.created_at
-  ? new Date(a.created_at).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      dateStyle: "medium",
-      timeStyle: "short"
-    })
-  : "—"}
+                      ? new Date(a.created_at).toLocaleString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })
+                      : "—"}
                   </td>
                 </tr>
               ))}
+
               {loading && accounts.length === 0 && (
                 <tr>
                   <td
@@ -207,6 +224,7 @@ export default function AccountsPage() {
                   </td>
                 </tr>
               )}
+
               {!loading && accounts.length === 0 && (
                 <tr>
                   <td
@@ -224,4 +242,3 @@ export default function AccountsPage() {
     </main>
   );
 }
-
