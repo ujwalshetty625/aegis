@@ -1,148 +1,255 @@
-# Aegis — Adaptive Explainable FinTech Risk & Intelligence Platform
+# Aegis — Real-Time Fraud Detection & Risk Intelligence Platform
 
-Aegis is a backend risk intelligence system inspired by real-world fraud and risk engines used inside digital payments platforms and NBFC lending infrastructure.
+Aegis is a **real-time fraud detection and risk intelligence platform** designed to monitor financial transactions, generate behavioral risk signals, compute risk scores, and assist analysts in investigating suspicious activity.
 
-This project focuses on building the core components that production fintech companies rely on internally:
+The system processes incoming transactions through a **risk pipeline**, evaluates behavioral signals, and automatically classifies transactions into **ALLOW**, **REVIEW**, or **BLOCK** decisions.
 
-- continuous transaction ingestion  
-- behavioral risk signal generation  
-- account-level scoring and decisioning  
-- explainability and auditability  
-- API-first service design  
+Suspicious transactions automatically create **investigation cases**, enabling fraud analysts to inspect transaction activity, understand risk reasoning, and take action.
 
-Aegis is not a toy ML notebook or a CRUD demo.  
-It is being developed as an industry-shaped risk decisioning backend.
+This project simulates the architecture used by modern fintech fraud detection systems such as **Stripe Radar, PayPal Risk Engine, and Razorpay Fraud Monitoring**.
 
 ---
 
-## Problem Context
+# Live Demo
 
-Modern fintech platforms need to continuously answer:
+### Frontend Dashboard
+https://aegis-udz4.vercel.app
 
-- Is this account behaving abnormally?
-- Should this activity be allowed, reviewed, or blocked?
-- Can we justify the decision to auditors and compliance teams?
-- Can the system evolve from rules into ML-driven intelligence?
-
-Aegis is built around these constraints from day one.
+### Backend API Documentation
+https://aegis-api-27xy.onrender.com/docs
 
 ---
 
-## Implemented Features
+# System Overview
 
-### 1. Transaction Ingestion + Financial Data Model
+Aegis simulates a **financial transaction monitoring system** composed of:
 
-Aegis generates realistic transaction streams and stores them in a structured schema:
+1. Transaction ingestion and processing
+2. Risk signal generation
+3. Risk scoring engine
+4. Automated decision system
+5. Fraud investigation dashboard
 
-- users  
-- accounts  
-- transactions  
-
-SQLite is used initially for rapid iteration (Postgres migration planned).
-
----
-
-### 2. Behavioral Signal Engine
-
-Before introducing ML, Aegis builds the signal layer used in real fraud systems.
-
-Current signals:
-
-- `TOTAL_SPEND_24H` — spend intensity anomaly  
-- `TXN_VELOCITY_1H` — burst transaction detection  
-- `NEW_DEVICE_USED` — device trust and behavioral drift  
-
-Signals are stored and queryable in the database.
+Incoming transactions are evaluated using behavioral signals that contribute to a **weighted risk score**. Based on this score, the system determines whether the transaction should be allowed, reviewed, or blocked.
 
 ---
 
-### 3. Account-Level Risk Scoring and Decisions
+# Core Features
 
-Risk is computed per `(user_id, account_id)` rather than only per user.
+## Account Management
+- Create and manage customer accounts
+- Track account balances and account status
+- Monitor account activity history
 
-Decisions produced:
+## Transaction Processing
+- Real-time transaction ingestion
+- Transaction simulator for testing scenarios
+- Transaction storage and history tracking
 
-- `ALLOW`
-- `REVIEW`
-- `BLOCK`
+## Risk Detection Engine
 
-Scoring is deterministic and transparent, designed to be extensible into ML later.
+The system generates behavioral risk signals such as:
 
----
+- High transaction amount
+- Excessive spending within time windows
+- Rapid transaction velocity
+- High transaction frequency
+- New device usage detection
 
-### 4. Explainability by Design
-
-Every risk decision includes explicit reasoning derived from triggered signals.
-
-Example:
-
-TOTAL_SPEND_24H: 1 trigger | TXN_VELOCITY_1H: 1 trigger | NEW_DEVICE_USED: 4 triggers
-
-This mirrors how fraud analysts interpret risk outputs in production.
-
----
-
-### 5. Immutable Audit Logging (Compliance Foundation)
-
-Aegis maintains an append-only audit trail for:
-
-- signal generation events  
-- decision events  
-
-Audit metadata is stored as structured JSON.
-
-Audit writes occur in the same database transaction as decisions to ensure atomicity and prevent orphan records.
+Each signal contributes to the final **risk score**.
 
 ---
 
-### 6. FastAPI Service Layer
+# Risk Decisions
 
-Aegis is exposed as a running backend service via FastAPI.
+Transactions are classified into three decision categories:
 
-Core endpoints:
-
-- `GET /health`
-- `GET /signals/recent`
-- `GET /decisions/latest`
-- `GET /accounts/{account_id}/decision`
-
-Swagger UI:
-http://127.0.0.1:8000/docs
-
-## Architecture Overview
-
-Transaction Generator
-↓
-Database (SQLite → Postgres)
-↓
-Signal Engine
-↓
-Account-Level Risk Engine
-↓
-Explainability + Audit Logs
-↓
-FastAPI Risk Intelligence Service
-↓
-(Planned) Analyst Dashboard + ML Models
+| Decision | Description |
+|--------|-------------|
+| **ALLOW** | Transaction considered safe |
+| **REVIEW** | Suspicious activity requiring analyst review |
+| **BLOCK** | High risk activity detected |
 
 ---
 
-## Project Structure
+# Fraud Investigation Dashboard
 
-```bash
-aegis/
-├── app/
-│   ├── data/          # schema + DB initialization
-│   ├── ingestion/     # transaction generator
-│   ├── signals/       # behavioral signal engine
-│   ├── risk/          # scoring + decision engine
-│   ├── audit/         # immutable audit logging
-│   ├── api/           # FastAPI routes
-│   └── main.py        # API entrypoint
-│
-├── scripts/
-│   └── run_generator.py
-│
-├── data/
-│   └── aegis.db
-└── README.md
+The analyst dashboard allows investigation of accounts with detailed insights including:
+
+- Account summary
+- Recent transactions
+- Generated risk signals
+- Latest risk decision
+- Active investigation cases
+
+---
+
+# Case Management
+
+Suspicious transactions automatically generate **review cases**.
+
+Fraud analysts can:
+
+- Investigate suspicious activity
+- Review signal explanations
+- Approve or escalate cases
+- Track investigation status
+
+---
+
+# Explainable Risk Scoring
+
+Each transaction decision includes a **transparent breakdown of risk signals**, showing:
+
+- Signal type
+- Signal weight
+- Contribution to the final risk score
+
+This allows analysts to understand **why a transaction was flagged**.
+
+---
+
+# Audit Integrity System
+
+All important system events are recorded in a **tamper-evident audit log chain**, providing:
+
+- Traceable event history
+- Integrity verification
+- Forensic investigation support
+
+---
+
+# System Architecture
+
+```
+Frontend (Next.js)
+        ↓
+FastAPI Backend (Risk Engine)
+        ↓
+Risk Pipeline & Signal Processing
+        ↓
+PostgreSQL Database
+```
+
+---
+
+# Tech Stack
+
+## Frontend
+- Next.js
+- TypeScript
+- TailwindCSS
+- Vercel Deployment
+
+## Backend
+- FastAPI
+- Python
+- Uvicorn
+
+## Database
+- PostgreSQL
+- Neon Cloud Database
+
+## Infrastructure
+- Vercel (Frontend Hosting)
+- Render (Backend Hosting)
+
+---
+
+# Risk Pipeline Workflow
+
+1. Transaction is received through the ingestion endpoint
+2. Transaction is stored in the database
+3. Risk signals are generated based on behavioral patterns
+4. Signals contribute to a weighted risk score
+5. Decision engine classifies the transaction
+6. Suspicious transactions generate investigation cases
+7. Analysts investigate cases through the dashboard
+
+---
+
+# Example Risk Signals
+
+| Signal | Description |
+|------|-------------|
+| **HIGH_AMOUNT** | Transaction amount exceeds threshold |
+| **TOTAL_SPEND_24H** | Excessive spending within 24 hours |
+| **TXN_VELOCITY_1H** | Multiple transactions in short time period |
+| **RAPID_TRANSACTIONS** | High frequency transactions in minutes |
+| **NEW_DEVICE_USED** | Transaction from previously unseen device |
+
+---
+
+# API Endpoints
+
+### Accounts
+- Create accounts
+- Fetch account details
+- Account investigation data
+
+### Transactions
+- Ingest new transactions
+- Retrieve transaction history
+- Explain transaction decisions
+
+### Risk & Cases
+- Latest risk decisions
+- Open investigation cases
+- Case resolution
+
+### System Monitoring
+- Health checks
+- Audit chain verification
+
+Full API documentation available at:
+
+https://aegis-api-27xy.onrender.com/docs
+
+---
+
+# Example Use Case
+
+A transaction is injected into the system.
+
+The risk engine analyzes the transaction and detects signals such as:
+
+- High transaction amount
+- New device usage
+- Rapid transaction frequency
+
+These signals increase the risk score, triggering a **REVIEW decision** and automatically generating an investigation case for analysts.
+
+---
+
+# Project Status
+
+This project represents a **functional prototype of a real-time fraud monitoring system** demonstrating:
+
+- Transaction monitoring
+- Behavioral fraud detection
+- Automated risk scoring
+- Fraud investigation workflows
+
+---
+
+# Author
+
+**Ujwal Shetty**
+
+---
+
+# Future Improvements
+
+Potential future improvements include:
+
+- Machine learning based risk scoring
+- Role based authentication
+- Real payment gateway integration
+- Event streaming architecture
+- Graph based fraud detection
+
+---
+
+# License
+
+This project is intended for **educational and demonstration purposes**.
